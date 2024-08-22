@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
-interface DatabaseSettings {
+interface CRDBSettings {
     user: string;
     host: string;
     database: string;
@@ -12,10 +12,10 @@ interface DatabaseSettings {
     sslCertPath?: string; // Optional path to SSL cert files
 }
 
-class Database {
+class CRDB {
     private pool: Pool;
 
-    constructor(settings: DatabaseSettings) {
+    constructor(settings: CRDBSettings) {
         const sslConfig = settings.ssl
             ? {
                 rejectUnauthorized: true,
@@ -57,4 +57,4 @@ class Database {
     }
 }
 
-export { Database, DatabaseSettings };
+export { CRDB, CRDBSettings };
