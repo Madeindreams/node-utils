@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: write  # Grant write permission to allow pushing tags
+  contents: write
 
 jobs:
   create-tag:
@@ -21,12 +21,41 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Create Tag
-        id: tag
+      - name: Get the latest tag
+        id: get_tag
         run: |
-          TAG="v$(date +'%Y%m%d%H%M%S')"
-          git tag $TAG
-          git push origin $TAG
+          git fetch --tags
+          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "Latest tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_ENV
+
+      - name: Calculate next tag
+        id: calc_tag
+        run: |
+          if [ -z "$TAG" ]; then
+            NEXT_TAG="v0.0.1"
+          else
+            IFS='.' read -r -a parts <<< "${TAG#v}"
+            major="${parts[0]}"
+            minor="${parts[1]}"
+            patch="${parts[2]}"
+          
+            patch=$((patch + 1))
+          
+            if [ $patch -eq 100 ]; then
+              patch=0
+              minor=$((minor + 1))
+            fi
+          
+            NEXT_TAG="v${major}.${minor}.${patch}"
+          fi
+          echo "Next tag: $NEXT_TAG"
+          echo "next_tag=$NEXT_TAG" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git tag ${{ env.next_tag }}
+          git push origin ${{ env.next_tag }}
 
       - name: Output Tag
-        run: echo "Tag ${{ steps.tag.outputs.tag }} created and pushed successfully."
+        run: echo "Tag ${{ env.next_tag }} created and pushed successfully."
