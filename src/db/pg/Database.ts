@@ -1,7 +1,6 @@
-import pg from 'pg'
-const { Pool } = pg
+import { Pool } from 'pg';
 
-interface PgDatabaseSettings {
+interface DatabaseSettings {
     user: string;
     host: string;
     database: string;
@@ -9,10 +8,10 @@ interface PgDatabaseSettings {
     port?: number;
 }
 
-class PgDatabase {
+class Database {
     private pool: Pool;
 
-    constructor(settings: PgDatabaseSettings) {
+    constructor(settings: DatabaseSettings) {
         this.pool = new Pool({
             user: settings.user,
             host: settings.host,
@@ -36,4 +35,4 @@ class PgDatabase {
     }
 }
 
-export { PgDatabase, PgDatabaseSettings };
+export { Database, DatabaseSettings };
