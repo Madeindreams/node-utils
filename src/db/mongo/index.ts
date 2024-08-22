@@ -5,7 +5,7 @@ interface MongoDBSettings {
     dbName: string;
 }
 
-class Database {
+class MongoDB {
     private client: MongoClient;
     private db?: Db;
 
@@ -42,4 +42,4 @@ class Database {
     }
 }
 
-export { Database, MongoDBSettings };
+export { MongoDB, MongoDBSettings };
