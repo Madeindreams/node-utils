@@ -1,0 +1,32 @@
+name: Tag on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Create Tag
+        id: tag
+        run: |
+          # Get the current date and time as tag
+          TAG="v$(date +'%Y%m%d%H%M%S')"
+          
+          # Create and push tag
+          git tag $TAG
+          git push origin $TAG
+
+      - name: Output Tag
+        run: echo "Tag ${{ steps.tag.outputs.tag }} created and pushed successfully."
