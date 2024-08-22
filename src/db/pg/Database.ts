@@ -6,6 +6,7 @@ interface DatabaseSettings {
     database: string;
     password: string;
     port?: number;
+    ssl?: boolean;
 }
 
 class Database {
@@ -18,6 +19,7 @@ class Database {
             database: settings.database,
             password: settings.password,
             port: settings.port || 5432,
+            ssl: settings.ssl || false,
         });
     }
 
