@@ -27,6 +27,8 @@ class Database {
         const client = await this.pool.connect();
         try {
             return await client.query(text, params);
+        } catch (error) {
+        console.error('Error on query:', error);
         } finally {
             client.release();
         }
