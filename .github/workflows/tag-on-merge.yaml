@@ -25,30 +25,38 @@ jobs:
         id: get_tag
         run: |
           git fetch --tags
-          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-          echo "Latest tag: $TAG"
-          echo "tag=$TAG" >> $GITHUB_ENV
+          TAG=$(git tag --sort=-v:refname | head -n 1)
+          if [ -z "$TAG" ]; then
+            echo "No tags found, starting from v0.0.0"
+            echo "tag=v0.0.0" >> $GITHUB_ENV
+          else
+            echo "Latest tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_ENV
+          fi
 
       - name: Calculate next tag
         id: calc_tag
         run: |
-          if [ -z "$TAG" ]; then
-            NEXT_TAG="v0.0.1"
-          else
-            IFS='.' read -r -a parts <<< "${TAG#v}"
-            major="${parts[0]}"
-            minor="${parts[1]}"
-            patch="${parts[2]}"
-          
-            patch=$((patch + 1))
-          
-            if [ $patch -eq 100 ]; then
-              patch=0
-              minor=$((minor + 1))
-            fi
-          
-            NEXT_TAG="v${major}.${minor}.${patch}"
+          # Remove the leading 'v' from the tag if it exists
+          TAG_WITHOUT_V=${{ env.tag }}
+          if [[ $TAG_WITHOUT_V == v* ]]; then
+            TAG_WITHOUT_V=${TAG_WITHOUT_V:1}
           fi
+
+          # Split the tag into its components
+          IFS='.' read -r -a parts <<< "$TAG_WITHOUT_V"
+          major="${parts[0]}"
+          minor="${parts[1]}"
+          patch="${parts[2]}"
+
+          patch=$((patch + 1))
+
+          if [ $patch -eq 100 ]; then
+            patch=0
+            minor=$((minor + 1))
+          fi
+
+          NEXT_TAG="v${major}.${minor}.${patch}"
           echo "Next tag: $NEXT_TAG"
           echo "next_tag=$NEXT_TAG" >> $GITHUB_ENV
 
